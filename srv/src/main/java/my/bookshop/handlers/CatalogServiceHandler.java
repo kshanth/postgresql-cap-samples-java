@@ -8,6 +8,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
 import com.sap.cds.Result;
 import com.sap.cds.Struct;
 import com.sap.cds.ql.Insert;
@@ -28,9 +31,6 @@ import com.sap.cds.services.handler.annotations.On;
 import com.sap.cds.services.handler.annotations.ServiceName;
 import com.sap.cds.services.messages.Messages;
 import com.sap.cds.services.persistence.PersistenceService;
-
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import cds.gen.catalogservice.AddReviewContext;
 import cds.gen.catalogservice.Books;
@@ -65,6 +65,7 @@ class CatalogServiceHandler implements EventHandler {
 	private final RatingCalculator ratingCalculator;
 
 	private final CqnAnalyzer analyzer;
+	
 
 	CatalogServiceHandler(PersistenceService db, @Qualifier(ReviewService_.CDS_NAME) DraftService reviewService,
 			Messages messages, RatingCalculator ratingCalculator, CdsModel model) {
@@ -73,8 +74,20 @@ class CatalogServiceHandler implements EventHandler {
 		this.messages = messages;
 		this.ratingCalculator = ratingCalculator;
 		this.analyzer = CqnAnalyzer.create(model);
+		
 	}
+	
+	// @Before(event = { CqnService.EVENT_READ})
+	// public void beforeEvent(EventContext context) {
+	// 	RequestContextHolder.currentRequestAttributes().setAttribute("readEndPointRegion", readEndPointRegion, RequestAttributes.SCOPE_REQUEST);
+	// }
 
+	// @Before(event = { CqnService.EVENT_READ})
+	// public void beforeEvent(EventContext context) {
+		
+	// 	RequestContextHolder.currentRequestAttributes().setAttribute("readEndPointRegion", "secondary", RequestAttributes.SCOPE_REQUEST);
+	// }
+	
 	/**
 	 * Invokes some validations before creating a review.
 	 *

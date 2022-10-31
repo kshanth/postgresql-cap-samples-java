@@ -16,9 +16,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
 import com.sap.cds.Result;
 import com.sap.cds.ql.Select;
 import com.sap.cds.ql.Update;
@@ -40,6 +37,11 @@ import com.sap.cds.services.handler.annotations.On;
 import com.sap.cds.services.handler.annotations.ServiceName;
 import com.sap.cds.services.messages.Messages;
 import com.sap.cds.services.persistence.PersistenceService;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import cds.gen.adminservice.AddToOrderContext;
 import cds.gen.adminservice.AdminService_;
@@ -79,7 +81,15 @@ class AdminServiceHandler implements EventHandler {
 		// model is a tenant-dependant model proxy
 		this.analyzer = CqnAnalyzer.create(model);
 	}
-
+	
+	// @Before(event = { CqnService.EVENT_READ})
+	// public void beforeEvent(EventContext context) {
+	// 	if(context.getService().getClass().getName().contains("DraftServiceImpl")) {
+	// 		return;
+	// 	}
+	// 	RequestContextHolder.currentRequestAttributes().setAttribute("readEndPointRegion", "secondary", RequestAttributes.SCOPE_REQUEST);
+	// }
+	
 	/**
 	 * Validate correctness of an order before finishing the order proces:
 	 * 1. Check Order quantity for each Item and return a message if quantity is empty or <= 0
@@ -177,6 +187,7 @@ class AdminServiceHandler implements EventHandler {
 	}
 
 	private BigDecimal calculateAmountInDraft(String orderItemId, Integer newQuantity, String newBookId, boolean includeWarnings) {
+		//RequestContextHolder.currentRequestAttributes().setAttribute("readEndPointRegion", "primary", RequestAttributes.SCOPE_REQUEST);
 		Integer quantity = newQuantity;
 		String bookId = newBookId;
 		if (quantity == null && bookId == null) {

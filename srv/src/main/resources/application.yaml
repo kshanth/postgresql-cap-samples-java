@@ -1,7 +1,7 @@
 ---
 logging:
   level:
-    '[com.sap.cds.auditlog]': DEBUG
+    "[com.sap.cds.auditlog]": DEBUG
 spring:
   web.resources.static-locations: "file:./app"
   jmx:
@@ -12,10 +12,10 @@ cds:
     - name: admin
       password: admin
       roles:
-      - admin
+        - admin
       attributes:
         businessPartner:
-        - "10401010"
+          - "10401010"
     - name: user
       password: user
 server.servlet.encoding:
@@ -39,7 +39,19 @@ management:
 ---
 spring:
   config.activate.on-profile: cloud
-  sql.init.schema-locations: "classpath:schema-nomocks.sql"
+  datasource:
+      driver-class-name: org.postgresql.Driver
+      url: ${datasource_url}      
+      username: ${datasource_username} 
+      password: ${datasource_password} 
+      initialization-mode: never
+      hikari:
+        maximum-pool-size: 10
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 cds:
   messaging.services:
     bupa-messaging:
@@ -47,7 +59,43 @@ cds:
       format: cloudevents
       subscribe-prefix: sap/S4HANAOD/java/ce/
   remote.services:
-    '[API_BUSINESS_PARTNER]':
+    "[API_BUSINESS_PARTNER]":
+      destination:
+        properties:
+          url: "https://sandbox.api.sap.com/s4hanacloud/sap/opu/odata/sap"
+        headers:
+          APIKey: "" # Place API Key from SAP API Business Hub here or use environment variable CDS_REMOTE_SERVICES_API_BUSINESS_PARTNER_DESTINATION_HEADERS_APIKEY
+        type: "odata-v2"
+
+---
+spring:
+  config.activate.on-profile: sqlite
+  datasource:
+    primary:
+      url: "jdbc:sqlite:primary.db"
+      driver-class-name: org.sqlite.JDBC
+      initialization-mode: never
+      hikari:
+        maximum-pool-size: 10      
+    secondary:
+      url: "jdbc:sqlite:secondary.db"
+      driver-class-name: org.sqlite.JDBC
+      initialization-mode: never
+      hikari:
+        maximum-pool-size: 10      
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+cds:
+  messaging.services:
+    bupa-messaging:
+      kind: enterprise-messaging
+      format: cloudevents
+      subscribe-prefix: sap/S4HANAOD/java/ce/
+  remote.services:
+    "[API_BUSINESS_PARTNER]":
       destination:
         properties:
           url: "https://sandbox.api.sap.com/s4hanacloud/sap/opu/odata/sap"
@@ -68,7 +116,7 @@ cds:
       serve:
         path: API_BUSINESS_PARTNER
   remote.services:
-    '[API_BUSINESS_PARTNER]':
+    "[API_BUSINESS_PARTNER]":
       destination:
         name: "myself"
         suffix: "/api"

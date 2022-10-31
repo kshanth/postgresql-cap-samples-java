@@ -84,9 +84,13 @@
                     "type": "Component",
                     "id": "BooksList",
                     "name": "sap.fe.templates.ListReport",
+                    "settings": {
+                        "useNewActionForCreate": false
+                        },
                     "options": {
                         "settings" : {
                             "entitySet" : "Books",
+                            
                             "navigation" : {
                                 "Books" : {
                                     "detail" : {
